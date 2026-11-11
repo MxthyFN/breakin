@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Northgate Savings &amp; Trust — Online Banking</title>
+<style>
+  :root {
+    --navy: #0b2545;
+    --navy-2: #13315c;
+    --accent: #1b7f5a;
+    --accent-2: #2aa17a;
+    --bg: #eef2f6;
+    --card: #ffffff;
+    --text: #1a2433;
+    --muted: #5b6b7c;
+    --border: #d6dee6;
+    --danger: #c0392b;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header.topbar {
+    background: linear-gradient(90deg, var(--navy), var(--navy-2));
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .brand-mark {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 20px;
+    flex-shrink: 0;
+  }
+  .brand-name { font-size: 20px; font-weight: 600; letter-spacing: 0.3px; }
+  .brand-sub { font-size: 12px; opacity: 0.8; margin-top: 1px; }
+  .lock-note { margin-left: auto; font-size: 12px; opacity: 0.85; display: flex; align-items: center; gap: 6px; }
+
+  main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+  .card {
+    background: var(--card);
+    width: 100%;
+    max-width: 420px;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(11,37,69,0.12);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .card-head {
+    padding: 24px 28px 8px;
+  }
+  .card-head h1 { margin: 0; font-size: 22px; color: var(--navy); }
+  .card-head p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+
+  .tabs { display: flex; border-bottom: 1px solid var(--border); margin: 18px 0 0; }
+  .tab {
+    flex: 1; text-align: center; padding: 12px 0; cursor: pointer;
+    font-size: 14px; font-weight: 600; color: var(--muted);
+    border-bottom: 3px solid transparent; background: none; border-top: none; border-left: none; border-right: none;
+    font-family: inherit;
+  }
+  .tab.active { color: var(--navy); border-bottom-color: var(--accent); }
+
+  form { padding: 22px 28px 28px; }
+  .field { margin-bottom: 16px; }
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  input {
+    width: 100%; padding: 11px 12px; font-size: 15px;
+    border: 1px solid var(--border); border-radius: 8px; font-family: inherit;
+    background: #fbfcfe;
+  }
+  input:focus { outline: none; border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(42,161,122,0.15); }
+  .btn {
+    width: 100%; padding: 12px; font-size: 15px; font-weight: 600;
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    cursor: pointer; font-family: inherit; transition: background 0.15s;
+  }
+  .btn:hover { background: var(--accent-2); }
+  .msg { font-size: 13px; margin: 0 0 14px; padding: 10px 12px; border-radius: 8px; display: none; }
+  .msg.show { display: block; }
+  .msg.err { background: #fdecea; color: var(--danger); border: 1px solid #f5c6cb; }
+  .msg.ok { background: #e8f6ef; color: var(--accent); border: 1px solid #b7e2cf; }
+  .hidden { display: none; }
+  .foot-note { padding: 0 28px 22px; font-size: 12px; color: var(--muted); }
+
+  /* Signed-in dashboard */
+  .dash { padding: 26px 28px; }
+  .dash h2 { margin: 0 0 4px; color: var(--navy); }
+  .dash .bal {
+    margin: 18px 0; padding: 18px; border-radius: 10px;
+    background: linear-gradient(120deg, var(--navy), var(--navy-2)); color: #fff;
+  }
+  .dash .bal .label { font-size: 12px; opacity: 0.8; }
+  .dash .bal .amount { font-size: 30px; font-weight: 700; margin-top: 4px; }
+  .linkbtn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 13px; font-weight: 600; padding: 0; font-family: inherit; }
+
+  footer { text-align: center; padding: 18px; font-size: 12px; color: var(--muted); }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-mark">N</div>
+    <div>
+      <div class="brand-name">Northgate Savings &amp; Trust</div>
+      <div class="brand-sub">Secure Online Banking</div>
+    </div>
+    <div class="lock-note">🔒 Encrypted session</div>
+  </header>
+
+  <main>
+    <!-- Auth card -->
+    <div class="card" id="authCard">
+      <div class="card-head">
+        <h1 id="headTitle">Welcome back</h1>
+        <p id="headSub">Sign in to access your accounts</p>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" id="tabLogin" type="button">Sign In</button>
+        <button class="tab" id="tabSignup" type="button">Open Account</button>
+      </div>
+
+      <!-- Login -->
+      <form id="loginForm">
+        <div class="msg" id="loginMsg"></div>
+        <div class="field">
+          <label for="loginUser">Username</label>
+          <input type="text" id="loginUser" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="loginPass">Password</label>
+          <input type="password" id="loginPass" autocomplete="current-password" required />
+        </div>
+        <button class="btn" type="submit">Sign In</button>
+      </form>
+
+      <!-- Signup -->
+      <form id="signupForm" class="hidden">
+        <div class="msg" id="signupMsg"></div>
+        <div class="field">
+          <label for="suUser">Choose a username</label>
+          <input type="text" id="suUser" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="suPass">Create a password</label>
+          <input type="password" id="suPass" autocomplete="new-password" required />
+        </div>
+        <div class="field">
+          <label for="suPass2">Confirm password</label>
+          <input type="password" id="suPass2" autocomplete="new-password" required />
+        </div>
+        <button class="btn" type="submit">Open Account</button>
+      </form>
+
+      <div class="foot-note">
+        Your credentials are stored locally in this browser only.
+      </div>
+    </div>
+
+    <!-- Dashboard (shown after login) -->
+    <div class="card hidden" id="dashCard">
+      <div class="dash">
+        <h2 id="welcomeName">Welcome</h2>
+        <p style="color:var(--muted);margin:4px 0 0;">Account overview</p>
+        <div class="bal">
+          <div class="label">Available balance</div>
+          <div class="amount" id="balAmount">$0.00</div>
+        </div>
+        <button class="linkbtn" id="logoutBtn" type="button">Sign out</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Northgate Savings &amp; Trust &middot; Member demonstration network
+  </footer>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- Local storage (origin-scoped by the browser) ----
+  var STORE_KEY = "ngst_accounts";
+  var SESSION_KEY = "ngst_session";
+
+  function loadAccounts() {
+    try {
+      return JSON.parse(localStorage.getItem(STORE_KEY)) || {};
+    } catch (e) {
+      return {};
+    }
+  }
+  function saveAccounts(accts) {
+    localStorage.setItem(STORE_KEY, JSON.stringify(accts));
+  }
+
+  // ---- Elements ----
+  var tabLogin = document.getElementById("tabLogin");
+  var tabSignup = document.getElementById("tabSignup");
+  var loginForm = document.getElementById("loginForm");
+  var signupForm = document.getElementById("signupForm");
+  var headTitle = document.getElementById("headTitle");
+  var headSub = document.getElementById("headSub");
+  var loginMsg = document.getElementById("loginMsg");
+  var signupMsg = document.getElementById("signupMsg");
+  var authCard = document.getElementById("authCard");
+  var dashCard = document.getElementById("dashCard");
+
+  function show(el, text, kind) {
+    el.textContent = text;
+    el.className = "msg show " + kind;
+  }
+  function hide(el) { el.className = "msg"; }
+
+  // ---- Tab switching ----
+  function selectLogin() {
+    tabLogin.classList.add("active");
+    tabSignup.classList.remove("active");
+    loginForm.classList.remove("hidden");
+    signupForm.classList.add("hidden");
+    headTitle.textContent = "Welcome back";
+    headSub.textContent = "Sign in to access your accounts";
+  }
+  function selectSignup() {
+    tabSignup.classList.add("active");
+    tabLogin.classList.remove("active");
+    signupForm.classList.remove("hidden");
+    loginForm.classList.add("hidden");
+    headTitle.textContent = "Open an account";
+    headSub.textContent = "Create your online banking profile";
+  }
+  tabLogin.addEventListener("click", selectLogin);
+  tabSignup.addEventListener("click", selectSignup);
+
+  // ---- Signup ----
+  signupForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    hide(signupMsg);
+    var user = document.getElementById("suUser").value.trim();
+    var pass = document.getElementById("suPass").value;
+    var pass2 = document.getElementById("suPass2").value;
+
+    if (!user || !pass) {
+      show(signupMsg, "Please fill in all fields.", "err");
+      return;
+    }
+    if (pass !== pass2) {
+      show(signupMsg, "Passwords do not match.", "err");
+      return;
+    }
+    var accts = loadAccounts();
+    if (accts[user.toLowerCase()]) {
+      show(signupMsg, "That username is already taken.", "err");
+      return;
+    }
+    accts[user.toLowerCase()] = {
+      username: user,
+      password: pass,
+      balance: Math.round((Math.random() * 9000 + 500) * 100) / 100,
+      created: Date.now()
+    };
+    saveAccounts(accts);
+    show(signupMsg, "Account created. You can now sign in.", "ok");
+    signupForm.reset();
+    setTimeout(function () {
+      selectLogin();
+      document.getElementById("loginUser").value = user;
+      hide(signupMsg);
+    }, 1200);
+  });
+
+  // ---- Login ----
+  loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    hide(loginMsg);
+    var user = document.getElementById("loginUser").value.trim();
+    var pass = document.getElementById("loginPass").value;
+    var accts = loadAccounts();
+    var acct = accts[user.toLowerCase()];
+
+    if (acct && acct.password === pass) {
+      startSession(acct.username);
+    } else {
+      show(loginMsg, "Invalid username or password.", "err");
+    }
+  });
+
+  // ---- Session / dashboard ----
+  function startSession(username) {
+    localStorage.setItem(SESSION_KEY, username);
+    renderDashboard(username);
+  }
+  function renderDashboard(username) {
+    var accts = loadAccounts();
+    var acct = accts[username.toLowerCase()];
+    document.getElementById("welcomeName").textContent = "Welcome, " + username;
+    document.getElementById("balAmount").textContent =
+      "$" + (acct ? acct.balance : 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    authCard.classList.add("hidden");
+    dashCard.classList.remove("hidden");
+  }
+  document.getElementById("logoutBtn").addEventListener("click", function () {
+    localStorage.removeItem(SESSION_KEY);
+    dashCard.classList.add("hidden");
+    authCard.classList.remove("hidden");
+    loginForm.reset();
+    hide(loginMsg);
+    selectLogin();
+  });
+
+  // ---- Restore existing session on load ----
+  var active = localStorage.getItem(SESSION_KEY);
+  if (active) {
+    var accts = loadAccounts();
+    if (accts[active.toLowerCase()]) {
+      renderDashboard(active);
+    } else {
+      localStorage.removeItem(SESSION_KEY);
+    }
+  }
+})();
+</script>
+</body>
+</html>
